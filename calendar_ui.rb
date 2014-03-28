@@ -38,6 +38,7 @@ def main_menu
     puts "Press 'pw' to list events from the past week."
     puts "Press 'pm' to list events from the past month."
     puts "Press 'tk' to list tasks"
+    puts "Press 'tn' to list task notes"
     puts "Press 'x' to exit"
     user_input = gets.chomp
     system "clear"
@@ -75,6 +76,8 @@ def main_menu
     when 'tk'
       events = Task.all
       display_tasks(events)
+    when 'tn'
+      list_task_notes
     when 'x'
       puts "Goodbye"
     else
@@ -129,17 +132,22 @@ def add_note
     display_events(events)
     puts 'Enter an item to add a note'
     item_choice = gets.chomp
-    item = Event.where(:description => item_choice)
+    item = Event.where(:description => item_choice).first
   elsif user_choice == 't'
     notable_type = 'task'
     events = Task.all
     display_tasks(events)
     puts 'Enter an item to add a note'
     item_choice = gets.chomp
-    item = Task.where(:description => item_choice)
-        binding.pry
+    item = Task.where(:description => item_choice).first
+        # binding.pry
   end
   note = Note.create(:description => new_note, :notable_id => item.id, :notable_type => notable_type)
+end
+
+def list_task_notes
+  notes = Note.where(:notable_type => 'task')
+  notes.each { |note| puts note.description}
 end
 
 def display_events(events)
