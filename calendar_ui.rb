@@ -2,6 +2,9 @@ require 'bundler/setup'
 Bundler.require(:default)
 require 'pry'
 require './lib/event.rb'
+require './lib/task.rb'
+require './lib/note.rb'
+
 
 Dir[File.dirname(__FILE__) + './lib/*.rb'].each { |file| require file }
 
@@ -27,6 +30,7 @@ def main_menu
     puts "\n\n"
     puts "Press 'e' to enter an event."
     puts "Press 'ak' to enter a task."
+    puts "Press 'n' to add a note"
     puts "Press 'l' to list future events."
     puts "Press 't' to list today's events."
     puts "Press 'w' to list events for the next week."
@@ -43,8 +47,9 @@ def main_menu
       add_event
     when 'ak'
       add_task
+    when 'n'
+      add_note
     when 'l'
-      # list_events
       events = Event.all.order(:start)
       display_events(events)
     when 't'
@@ -68,7 +73,7 @@ def main_menu
       events = Event.past_range(start_date)
       display_events(events)
     when 'tk'
-      events = Event.all
+      events = Task.all
       display_tasks(events)
     when 'x'
       puts "Goodbye"
@@ -107,11 +112,35 @@ def add_task
   puts "Please enter a location for this event."
   event_location = gets.chomp
 
-  description = Event.create({ :description => event_description,
+  description = Task.create({ :description => event_description,
                               :location => event_location,
                               })
 end
 
+def add_note
+  puts "Please enter your note"
+  new_note = gets.chomp
+  puts "Press 'e' to add your note to a calendar entry"
+  puts "Press 't' to add your note to a task"
+  user_choice = gets.chomp
+  if user_choice == 'e'
+    notable_type = 'event'
+    events = Event.all.order(:start)
+    display_events(events)
+    puts 'Enter an item to add a note'
+    item_choice = gets.chomp
+    item = Event.where(:description => item_choice)
+  elsif user_choice == 't'
+    notable_type = 'task'
+    events = Task.all
+    display_tasks(events)
+    puts 'Enter an item to add a note'
+    item_choice = gets.chomp
+    item = Task.where(:description => item_choice)
+        binding.pry
+  end
+  note = Note.create(:description => new_note, :notable_id => item.id, :notable_type => notable_type)
+end
 
 def display_events(events)
   puts "\e[36mCALENDAR\e[0;30m"
@@ -135,16 +164,7 @@ def display_tasks(events)
   puts "==========================================="
 
   events.each do |event|
-     # binding.pry
-    if event.start == nil
       puts "#{event.description}" + " "*(25-event.description.length) + "#{event.location}" + " "*(15-event.location.length)
-    end
   end
 end
 welcome
-
-
-
-
-  # date_answer = gets.chomp
-  # end_date = date_answer + 7.days
