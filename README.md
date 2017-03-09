@@ -1,5 +1,4 @@
-#Calendar
-##Create a calendar app.
+#Epicodus exercise - Calendar
 
 - First, let users create, edit, and delete events with a description, location, and a start and end date and time.
 - Next, let users list out the events in the order in which they will occur. By default, only list events in the future.
